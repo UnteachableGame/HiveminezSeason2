@@ -1,0 +1,10 @@
+name: HiveminezSeason2
+version: '$version'
+
+main: me.unteachable.hiveminezSeason2.HiveminezSeason2
+api-version: '1.21.11'
+depend: [ProtocolLib]
+commands:
+  feed:
+  starterpickaxe:
+  seeallitems:
