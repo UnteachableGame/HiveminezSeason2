@@ -34,7 +34,9 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public final class HiveminezSeason2 extends JavaPlugin {
@@ -273,7 +275,6 @@ public final class HiveminezSeason2 extends JavaPlugin {
         getCommand("feed").setExecutor(new UtilCommands());
         getCommand("starterpickaxe").setExecutor(new GiveStarterPickaxe());
         getCommand("seeallitems").setExecutor(new UtilCommands());
-
     }
 
     public void configuration() {
@@ -295,7 +296,6 @@ public final class HiveminezSeason2 extends JavaPlugin {
     }
 
     public void protocolManagerRunner() {
-        OreItems oreItems = new OreItems();
         HiveminezSeason2 plugin2 = this;
 
         getProtocolManager().addPacketListener(new PacketAdapter(this, PacketType.Play.Client.USE_ENTITY) {
@@ -312,12 +312,7 @@ public final class HiveminezSeason2 extends JavaPlugin {
                     if (useAction.getAction() == EnumWrappers.EntityUseAction.INTERACT) {
                         for (ItemStack item : p.getInventory().getContents()) {
                             if (item != null) {
-                                Compressor.compress(p, AllItemsManager.addCount(oreItems.getCharredBarkWood(), 1), AllItemsManager.addCount(oreItems.getSplinteredPineWood(), 32));
-                                Compressor.compress(p, AllItemsManager.addCount(oreItems.getAmberGlassWood(), 1), AllItemsManager.addCount(oreItems.getCharredBarkWood(), 32));
-                                Compressor.compress(p, AllItemsManager.addCount(oreItems.getSunkenDriftWood(), 1), AllItemsManager.addCount(oreItems.getAmberGlassWood(), 32));
-                                Compressor.compress(p, AllItemsManager.addCount(oreItems.getLivingRootWood(), 1), AllItemsManager.addCount(oreItems.getSunkenDriftWood(), 32));
-                                Compressor.compress(p, AllItemsManager.addCount(oreItems.getWorldTreeSeedWood(), 1), AllItemsManager.addCount(oreItems.getLivingRootWood(), 32));
-                                Compressor.compress(p, AllItemsManager.addCount(oreItems.getGrittyShaleStone(), 1), AllItemsManager.addCount(oreItems.getWorldTreeSeedWood(), 32));
+                                compressItemInfo(p);
                             }
                         }
 
@@ -330,6 +325,31 @@ public final class HiveminezSeason2 extends JavaPlugin {
                 }
             }
         });
+    }
+
+    public void compressItemInfo(Player p) {
+        Map<ItemStack, String> ores = HiveminezSeason2.getAllItemsManager().getOreItems();
+        List<ItemStack> oresList = new ArrayList<>(ores.keySet());
+
+        int oreIndex = 1;
+        for (int index = 0; index < oresList.size(); index++) {
+            if (index + 1 >= ores.size()) break;
+
+            ItemStack ore = oresList.get(index);
+            ItemStack newOre = ore.clone();
+            if (!newOre.hasItemMeta()) continue;
+            String oreType = ores.get(newOre);
+
+            Compressor.compress(p, AllItemsManager.addCount(oresList.get(index + 1), 1),
+                    AllItemsManager.addCount(oresList.get(index),
+                            getConfig().getInt(String.format("ores.%s.%d", oreType, oreIndex))));
+
+            if (oreIndex == 6) {
+                oreIndex = 0;
+            }
+
+            oreIndex++;
+        }
     }
 
     public static MiningTracker getMiningTracker() {

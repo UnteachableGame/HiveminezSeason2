@@ -44,7 +44,7 @@ public abstract class Menu implements InventoryHolder {
 
     public void addFillerGlass() {
         for (int i = 0; i < getSlots(); i++) {
-            if (inv.getItem(i) == null){
+            if (inv.getItem(i) == null) {
                 inv.setItem(i, FILLER_GLASS);
             }
         }
