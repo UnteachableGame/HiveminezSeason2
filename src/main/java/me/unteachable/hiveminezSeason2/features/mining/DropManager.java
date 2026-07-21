@@ -1,7 +1,7 @@
 package me.unteachable.hiveminezSeason2.features.mining;
 
-import me.unteachable.hiveminezSeason2.items.OreItems;
-import me.unteachable.hiveminezSeason2.utils.MiningInfo;
+import me.unteachable.hiveminezSeason2.utils.items.OreItems;
+import me.unteachable.hiveminezSeason2.models.MiningInfo;
 import org.bukkit.Material;
 
 import java.util.HashMap;
@@ -26,8 +26,6 @@ public class DropManager {
     }
 
     public void makeDrops() {
-        OreItems ores = new OreItems();
-
         toolBaseMaterialTier.put("wood", 1);
         toolBaseMaterialTier.put("stone", 2);
         toolBaseMaterialTier.put("coal", 3);
@@ -40,14 +38,14 @@ public class DropManager {
         toolBaseMaterialTier.put("diamond", 10);
         toolBaseMaterialTier.put("netherite", 11);
 
-        dropInfoMap.put(Material.OAK_LOG, new MiningInfo(ores.getSplinteredPineWood(), 1, false));
-        dropInfoMap.put(Material.MANGROVE_LOG, new MiningInfo(ores.getSplinteredPineWood(), 1, true));
-        dropInfoMap.put(Material.STONE, new MiningInfo(ores.getGrittyShaleStone(), 2, false));
-        dropInfoMap.put(Material.COBBLESTONE, new MiningInfo(ores.getGrittyShaleStone(), 2, true));
-        dropInfoMap.put(Material.COAL_ORE, new MiningInfo(ores.getSplinteredPineWood(), 3, false));
-        dropInfoMap.put(Material.COAL_BLOCK, new MiningInfo(ores.getSplinteredPineWood(), 3, true));
-        dropInfoMap.put(Material.COPPER_ORE, new MiningInfo(ores.getGrittyShaleStone(), 4, false));
-        dropInfoMap.put(Material.RAW_COPPER_BLOCK, new MiningInfo(ores.getGrittyShaleStone(), 4, true));
+        dropInfoMap.put(Material.OAK_LOG, new MiningInfo(OreItems.getSplinteredPineWood(), 1, false));
+        dropInfoMap.put(Material.MANGROVE_LOG, new MiningInfo(OreItems.getSplinteredPineWood(), 1, true));
+        dropInfoMap.put(Material.STONE, new MiningInfo(OreItems.getGrittyShaleStone(), 2, false));
+        dropInfoMap.put(Material.COBBLESTONE, new MiningInfo(OreItems.getGrittyShaleStone(), 2, true));
+        dropInfoMap.put(Material.COAL_ORE, new MiningInfo(OreItems.getPeatDustCoal(), 3, false));
+        dropInfoMap.put(Material.COAL_BLOCK, new MiningInfo(OreItems.getPeatDustCoal(), 3, true));
+        dropInfoMap.put(Material.COPPER_ORE, new MiningInfo(OreItems.getVerdigrisCopper(), 4, false));
+        dropInfoMap.put(Material.RAW_COPPER_BLOCK, new MiningInfo(OreItems.getVerdigrisCopper(), 4, true));
     }
 
 }

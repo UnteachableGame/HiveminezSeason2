@@ -1,11 +1,9 @@
 package me.unteachable.hiveminezSeason2.listeners;
 
 import me.unteachable.hiveminezSeason2.HiveminezSeason2;
-import me.unteachable.hiveminezSeason2.items.OreItems;
-import me.unteachable.hiveminezSeason2.utils.MiningInfo;
+import me.unteachable.hiveminezSeason2.models.MiningInfo;
 import me.unteachable.hiveminezSeason2.utils.Prefix;
 import org.bukkit.GameMode;
-import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -17,9 +15,6 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 
 import java.util.EventListener;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
 
 public class BlockBreakListener extends Prefix implements EventListener, Listener {
 

@@ -10,40 +10,42 @@ import com.comphenix.protocol.wrappers.EnumWrappers;
 import com.comphenix.protocol.wrappers.WrappedEnumEntityUseAction;
 import me.unteachable.hiveminezSeason2.commands.GiveStarterPickaxe;
 import me.unteachable.hiveminezSeason2.commands.UtilCommands;
+import me.unteachable.hiveminezSeason2.features.menus.CompressorInfoMenu;
+import me.unteachable.hiveminezSeason2.features.menus.shopmenus.ShopMenu;
 import me.unteachable.hiveminezSeason2.features.mining.BoxRegenerators;
 import me.unteachable.hiveminezSeason2.features.mining.Compressor;
 import me.unteachable.hiveminezSeason2.features.mining.DropManager;
-import me.unteachable.hiveminezSeason2.features.mining.tracker.MiningTracker;
-import me.unteachable.hiveminezSeason2.items.manager.AllItemsManager;
-import me.unteachable.hiveminezSeason2.items.OreItems;
-import me.unteachable.hiveminezSeason2.items.ToolItems;
-import me.unteachable.hiveminezSeason2.items.WeaponItems;
+import me.unteachable.hiveminezSeason2.features.mining.MiningTracker;
 import me.unteachable.hiveminezSeason2.listeners.BlockBreakListener;
 import me.unteachable.hiveminezSeason2.listeners.UtilListeners;
-import me.unteachable.hiveminezSeason2.menus.CompressorInfoMenu;
-import me.unteachable.hiveminezSeason2.menus.shopmenus.ShopMenu;
-import me.unteachable.hiveminezSeason2.npc.NPCListener;
-import me.unteachable.hiveminezSeason2.npc.NPCManager;
-import me.unteachable.hiveminezSeason2.npc.NPCs;
-import me.unteachable.hiveminezSeason2.utils.PlayerMenuUtility;
+import me.unteachable.hiveminezSeason2.base.menu.PlayerMenuUtility;
+import me.unteachable.hiveminezSeason2.utils.items.OreItems;
 import me.unteachable.hiveminezSeason2.utils.Prefix;
+import me.unteachable.hiveminezSeason2.utils.items.ToolItems;
+import me.unteachable.hiveminezSeason2.utils.items.WeaponItems;
+import me.unteachable.hiveminezSeason2.utils.manager.AllItemsManager;
+import me.unteachable.hiveminezSeason2.listeners.NPCListener;
+import me.unteachable.hiveminezSeason2.utils.npc.NPCManager;
+import me.unteachable.hiveminezSeason2.utils.npc.NPCs;
 import org.bukkit.Bukkit;
+import org.bukkit.NamespacedKey;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public final class HiveminezSeason2 extends JavaPlugin {
+    private static final Logger log = LoggerFactory.getLogger(HiveminezSeason2.class);
 
     /*
-        Focus towards box mining the progression of vanilla Minecraft from the first piece of wood to the elytra.
-
+    Focus towards box mining the progression of vanilla Minecraft from the first piece of wood to the elytra.
         Mining:
             Vanilla Miner/Chopper Role:
                 Ores/Resources items
@@ -109,7 +111,7 @@ public final class HiveminezSeason2 extends JavaPlugin {
                         (overworld) red-leather, blue-leather, green-leather, diamond, (ender dragon fight)
                         (nether) netherite (ender dragon fight)
                     Tiers
-                        s
+                        - Tiers
                     Armor Trim Abilities (18 Armor Trims, 16 Base Colors)
                         The Dimensional Compass: A custom item that changes color based on your dimension and displays your
                         current active armor ability in the Action Bar (above the hotbar).
@@ -188,10 +190,38 @@ public final class HiveminezSeason2 extends JavaPlugin {
                     "Void Shards." If you hold these in your inventory for more than 60 seconds without putting them in
                     a "Stabilizer Box," they vanish. This creates a "sprint" mechanic from the mine to the chest.
 
+        Parts of the World of the certain Mines, Fishing, and PvP areas
+        Overworld Regions:
+            - The Overgrowth Mines (Starter Zone | Safe): A lush canopy of giant trees and exposed mossy cliffs. Features 1.0-era baseline mining materials (Wood, Stone, Coal). Ores are found embedded inside massive logs and rock faces. Completely non-PvP.
+            - The Kinetic Steppes (Mid-Tier | Pre-Nether): A jagged canyon landscape rich in Copper and Iron. Introduces dynamic vertical hazards and lightning strikes that charge raw metal blocks, creating a hot combat and utility zone. Excellent for crafting early Volt-Coil alloys.
+            - The Abyssal Trench (Underwater Zone): A massive sunken glass dome filled with dark indigo water (simulated natively via Deep Frozen Ocean biome manipulation to dye the water colorwithout external resource packs). Focuses on Lapis, Emerald, and premium fishing mechanics.Home to hostile Zombie Nautilus PvE mobs.
+            - The Void Boundary (Late-Tier | Post-Nether): A corrupted mountain landscape where deepslate blocks have taken over the geography. This is the exclusive spawn location for Diamond. Oreshere are physically sentient and will actively teleport away or jump down structural fissuresif approached without shifting or trapping.
+
+            The Center Region
+                - The Central Spire: A brutalist monolith scaling to sky-limit at the direct midpoint of the Triangle map. This zone is fully locked off until large-scale, community-wideresource delivery goals are hit. It contains the Ancient Keeper AI NPC, the master upgrade forge layout, and unlocks the final Singularity tiers.
+
+        Nether Regions:
+            - The Crimson Crags (Nether Tier 1): Modeled after the Crimson Forest and Nether Wastes. Hugecrimson fungi and floating islands over open lava pits. Focuses on gathering Nether essentialsand Gold. Populated by hostile Hoglins and Piglin Brutes.
+            - The Basalt Ashen Wastes (Nether Tier 2): Combining Basalt Deltas and Soul Sand Valley. Grayash particle weather covers the screen, and the ground is entirely made of soul sand. FeaturesQuartz and raw Netherite Debris. Skeletons snipe from towering basalt pillars, targetingplayers slowed down by the terrain.
+
+        Ranks
+            Basic Ranks:
+                - Surface Drifter: Gives them the basic tool. Starter rank. Access to the Overgrowth Mines, the 1.0 tool kit, and thebasic Void Bag trash filter.
+                - Core Excavtor: Someone who is working with others to break the first community ore wall.This unlocks the Nether section of the map.
+                - Abyssal Voyager: Upgrades their fishing abilities and lets them fo the the next area thatis underwater. This unlocks the Underwater section of the map.
+                - Rift Sentry: This lets the player have two roles instead of one role to then unlockdifferent areas and ways to play the map. This unlocks them to then go to another rolesuch as being a miner to being a fisher or being a pvper/pver to a fisher. This rolewill also unlock the center of the map which is the spire.
+                - Singularity Master: This is the max teir. They have full access to the map with all ofthe areas of the map unlocked. Unlocks flight and a chat animation.
+
+            Doner Ranks:
+                - Catalyst
+                - Conduit
+                - Kinetic
+
         Daily Ender Dragon Fight Event (a time every day)
             Fight the ender dragon with others as a requirement.
             Doing this will be the only way for the indiviual player to progress on the server.
-            There will be tiers of diffculty based upon the player's full armor upgrades (default reward will be having access to the next stage of the map and
+            There will be tiers of diffculty based upon the player's full armor upgrades (default reward
+            will be having access to the next stage of the map and
             box server progression.) Player team amounts of 2, 3, 4, 5, 6.
                 No Armor [Hard], legendary rewards, (2, 3, 4, 5, 6)
                     rewards (e.g. legendary crate key)
@@ -219,6 +249,10 @@ public final class HiveminezSeason2 extends JavaPlugin {
                 break sound
                 rarity
                 unbreakable?
+
+        Holograms
+            Intro -
+            Stats -
          */
 
     private ProtocolManager protocolManager;
@@ -226,12 +260,12 @@ public final class HiveminezSeason2 extends JavaPlugin {
     private static AllItemsManager allItemsManager;
     private static NPCManager npcManager;
     private static Map<Player, PlayerMenuUtility> playerMenuUtilityMap;
-    private static Prefix prefix;
     private static DropManager dropManager;
 
     @Override
     public void onEnable() {
         // Plugin startup logic
+        configuration();
 
         BoxRegenerators regen = new BoxRegenerators();
         regen.regenerateBoxes(Bukkit.getOnlinePlayers());
@@ -241,22 +275,15 @@ public final class HiveminezSeason2 extends JavaPlugin {
         allItemsManager = new AllItemsManager();
         npcManager = new NPCManager();
         playerMenuUtilityMap = new HashMap<>();
-        prefix = new Prefix();
         dropManager = new DropManager();
 
         registerListenersAndCommands();
         protocolManagerRunner();
-        configuration();
-        new OreItems().setOreItemsInList();
-        new ToolItems().setToolItemsInList();
+        OreItems.setOreItemsInList();
+        ToolItems.setToolItemsInList();
         new WeaponItems().setWeaponItemsInList();
         new NPCs().spawnNPCs();
         getDropManager().makeDrops();
-    }
-
-    @Override
-    public void onDisable() {
-        // Plugin shutdown logic
     }
 
     public static Plugin getPlugin() {
@@ -275,11 +302,6 @@ public final class HiveminezSeason2 extends JavaPlugin {
         getCommand("feed").setExecutor(new UtilCommands());
         getCommand("starterpickaxe").setExecutor(new GiveStarterPickaxe());
         getCommand("seeallitems").setExecutor(new UtilCommands());
-    }
-
-    public void configuration() {
-        getConfig().options().copyDefaults();
-        saveDefaultConfig();
     }
 
     public static PlayerMenuUtility getPlayerMenuUtility(Player p) {
@@ -310,11 +332,7 @@ public final class HiveminezSeason2 extends JavaPlugin {
                 if (entityID == getNpcManager().getNpcID(getNpcManager().getNPCS().get("ores"))) {
                     // right click
                     if (useAction.getAction() == EnumWrappers.EntityUseAction.INTERACT) {
-                        for (ItemStack item : p.getInventory().getContents()) {
-                            if (item != null) {
-                                compressItemInfo(p);
-                            }
-                        }
+                        new Compressor((HiveminezSeason2) getPlugin()).compressItemInfo(p);
 
                         // left click
                     } else if (useAction.getAction() == EnumWrappers.EntityUseAction.ATTACK) {
@@ -327,52 +345,25 @@ public final class HiveminezSeason2 extends JavaPlugin {
         });
     }
 
-    public void compressItemInfo(Player p) {
-        Map<ItemStack, String> ores = HiveminezSeason2.getAllItemsManager().getOreItems();
-        List<ItemStack> oresList = new ArrayList<>(ores.keySet());
-
-        int oreIndex = 1;
-        for (int index = 0; index < oresList.size(); index++) {
-            if (index + 1 >= ores.size()) break;
-
-            ItemStack ore = oresList.get(index);
-            ItemStack newOre = ore.clone();
-            if (!newOre.hasItemMeta()) continue;
-            String oreType = ores.get(newOre);
-
-            Compressor.compress(p, AllItemsManager.addCount(oresList.get(index + 1), 1),
-                    AllItemsManager.addCount(oresList.get(index),
-                            getConfig().getInt(String.format("ores.%s.%d", oreType, oreIndex))));
-
-            if (oreIndex == 6) {
-                oreIndex = 0;
-            }
-
-            oreIndex++;
-        }
-    }
-
     public static MiningTracker getMiningTracker() {
         return miningTracker;
     }
-
     public static AllItemsManager getAllItemsManager() {
         return allItemsManager;
     }
-
     public static NPCManager getNpcManager() {
         return npcManager;
     }
-
     public ProtocolManager getProtocolManager() {
         return protocolManager;
     }
-
-    public static Prefix getPrefix() {
-        return prefix;
-    }
-
     public static DropManager getDropManager() {
         return dropManager;
     }
+
+    public void configuration() {
+        getConfig().options().copyDefaults();
+        saveDefaultConfig();
+    }
+
 }
